@@ -158,9 +158,10 @@ int PlayCascade(int diflevel)
 
 
   //Call announcer function in thread which annonces the word to type 
-  if(settings.tts)
+  if(settings.tts) {
+	tts_announcer_switch = 1;
 	tts_announcer_thread = SDL_CreateThread(tts_announcer, "tts", &struct_with_data_address);
-  
+  }
 
   DEBUGCODE
   {
@@ -385,8 +386,10 @@ int PlayCascade(int diflevel)
                 {
 				  T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("Pause Released!"));
 				  //Call announcer function in thread which annonces the word to type
-				  if(settings.tts)
+				  if(settings.tts) {
+						tts_announcer_switch = 1;
 						tts_announcer_thread = SDL_CreateThread(tts_announcer, "tts", &struct_with_data_address);
+				  }
 				  DrawBackground();
 				}
                 break;
@@ -657,8 +660,10 @@ int PlayCascade(int diflevel)
      if (still_playing)
      {
 		fishies = 0; //Otherwise thread will announce old words and cause segfault
-		if(settings.tts)
+		if(settings.tts) {
+			tts_announcer_switch = 1;
 			tts_announcer_thread = SDL_CreateThread(tts_announcer, "tts", &struct_with_data_address);
+		}
 	 }
 	
     }  /* End of post-level wrap-up  */
@@ -1801,11 +1806,13 @@ static int tts_announcer(void *struct_address)
 	struct tts_announcer_cascade_data_struct struct_with_data_address = *((struct tts_announcer_cascade_data_struct*)(struct_address));
 	int fishies,i,j,iter;
 	wchar_t buffer[3000];
+#if 1 // FIX: Track last spoken word to prevent TTS stutter
+	static wchar_t last_spoken[9000] = {0};
+#endif
 	int fish_object_positions[10];
 	int alive,temp;
 	int pitch_and_rate;
 	int which,correct_position;
-	tts_announcer_switch = 1;
 	int max;
 	
 	while(1)
@@ -1874,6 +1881,45 @@ static int tts_announcer(void *struct_address)
 				max = alive;
 
 			//Using this corrected order to say each words and letters
+#if 1 // FIX: Combine words and prevent TTS stutter
+			wchar_t combined_buffer[9000] = {0};
+			for(i=0;i<=max;i++)
+			{
+				if(tts_announcer_switch == 0)
+					goto end;
+												
+				//Adding the word
+				wcscpy(buffer,fish_object[fish_object_positions[i]].word);
+				iter = wcslen(fish_object[fish_object_positions[i]].word);
+				buffer[iter] = L'.';iter++;
+				buffer[iter] = L' ';iter++;
+				
+				//Appending letters if word is not alphabet
+				if (1<wcslen(fish_object[fish_object_positions[i]].word))
+				{
+					for(j=0;j<wcslen(fish_object[fish_object_positions[i]].word);j++)
+					{
+						buffer[iter] = fish_object[fish_object_positions[i]].word[j];iter++;
+						buffer[iter] = L'.';iter++;
+						buffer[iter] = L' ';iter++;
+					}
+				}
+				//If not ended with '\0' it will say grabage values also
+				buffer[iter] = L'\0'; 
+				
+				wcscat(combined_buffer, buffer);
+				wcscat(combined_buffer, L"  ");
+			}
+			
+			pitch_and_rate = DEFAULT_VALUE;
+			if (wcscmp(combined_buffer, last_spoken) != 0)
+			{
+				T4K_Tts_say(pitch_and_rate,pitch_and_rate,INTERRUPT,"%S",combined_buffer);
+				wcscpy(last_spoken, combined_buffer);
+			}
+			
+			SDL_Delay(100);
+#else
 			for(i=0;i<=max;i++)
 			{
 				if(tts_announcer_switch == 0)
@@ -1912,6 +1958,7 @@ static int tts_announcer(void *struct_address)
 				SDL_WaitThread(tts_thread,NULL);
 				SDL_Delay(100);
 			}				
+#endif
 		}
 		else
 		{
@@ -1980,9 +2027,18 @@ static int tts_announcer(void *struct_address)
 					pitch_and_rate = 60;
 				 
 				
+#if 1 // FIX: Prevent TTS stutter
+				if (wcscmp(buffer, last_spoken) != 0)
+				{
+					T4K_Tts_say(pitch_and_rate,pitch_and_rate,INTERRUPT,"%S",buffer);				
+					wcscpy(last_spoken, buffer);
+				}
+				SDL_Delay(100);
+#else
 				T4K_Tts_say(pitch_and_rate,pitch_and_rate,INTERRUPT,"%S",buffer);				
 				SDL_WaitThread(tts_thread,NULL);
 				SDL_Delay(100);
+#endif
 				fprintf(stderr,"\nBraille_Letter_Pos = %d",braille_letter_pos);
 			}
 			else
@@ -2000,7 +2056,11 @@ static int tts_announcer(void *struct_address)
 /********** Stop annoncing thread safely *********/
 static void stop_tts_announcer()
 {
-	tts_announcer_switch = 0;	
+	if (tts_announcer_thread) {
+		tts_announcer_switch = 0;
+		SDL_WaitThread(tts_announcer_thread, NULL);
+		tts_announcer_thread = NULL;
+	}
 }
 
 

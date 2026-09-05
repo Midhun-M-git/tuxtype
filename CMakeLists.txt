@@ -77,3 +77,38 @@ endif()
 # Process the src/ subdirectory
 # -------------------------------------------------------------------
 add_subdirectory(src)
+
+# -------------------------------------------------------------------
+# Compile translations (.po -> .mo)
+# -------------------------------------------------------------------
+find_program(MSGFMT_EXECUTABLE msgfmt)
+if(MSGFMT_EXECUTABLE)
+    file(GLOB PO_FILES "${CMAKE_SOURCE_DIR}/po/*.po")
+    set(MO_FILES "")
+    foreach(PO_FILE ${PO_FILES})
+        get_filename_component(LANG ${PO_FILE} NAME_WE)
+        
+        # Avoid compiling the template or backup files if they accidentally match
+        if(LANG STREQUAL "en@boldquot" OR LANG STREQUAL "en@quot")
+            continue()
+        endif()
+
+        set(MO_DIR "${CMAKE_SOURCE_DIR}/data/locale/${LANG}/LC_MESSAGES")
+        set(MO_FILE "${MO_DIR}/${PACKAGE_NAME}.mo")
+        
+        add_custom_command(
+            OUTPUT "${MO_FILE}"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${MO_DIR}"
+            COMMAND ${MSGFMT_EXECUTABLE} -c -v -o "${MO_FILE}" "${PO_FILE}"
+            DEPENDS "${PO_FILE}"
+            COMMENT "Compiling translation for ${LANG}"
+        )
+        list(APPEND MO_FILES "${MO_FILE}")
+    endforeach()
+
+    if(MO_FILES)
+        add_custom_target(translations ALL DEPENDS ${MO_FILES})
+    endif()
+else()
+    message(WARNING "msgfmt not found. Translations will not be compiled.")
+endif()

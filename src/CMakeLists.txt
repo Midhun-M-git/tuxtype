@@ -64,6 +64,11 @@ endif()
 add_executable(${EXE_NAME} ${TUXTYPE_SOURCES})
 
 # -------------------------------------------------------------------
+# Standalone TTS Test Tool
+# -------------------------------------------------------------------
+add_executable(test_tts test_tts.c)
+
+# -------------------------------------------------------------------
 # Compile definitions (mirrors Makefile.am AM_CFLAGS / AM_CPPFLAGS)
 # -------------------------------------------------------------------
 target_compile_definitions(${EXE_NAME} PRIVATE
@@ -90,6 +95,10 @@ if(WITH_ESPEAK)
         WITH_ESPEAK=1
         WITH_ESPEAK_NG=${WITH_ESPEAK_NG}
     )
+    target_compile_definitions(test_tts PRIVATE
+        WITH_ESPEAK=1
+        WITH_ESPEAK_NG=${WITH_ESPEAK_NG}
+    )
 endif()
 
 # -------------------------------------------------------------------
@@ -105,6 +114,13 @@ target_include_directories(${EXE_NAME} PRIVATE
     ${SDL3_MIXER_INCLUDE_DIRS}
     ${LIBXML2_INCLUDE_DIR}
     ${LIBRSVG_INCLUDE_DIRS}
+    ${T4K_COMMON_INCLUDE_DIRS}
+)
+
+target_include_directories(test_tts PRIVATE
+    ${CMAKE_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${SDL3_INCLUDE_DIRS}
     ${T4K_COMMON_INCLUDE_DIRS}
 )
 
@@ -138,6 +154,11 @@ if(MINGW)
         ${CAIRO_INCLUDE_DIRS}
         ${GLIB_INCLUDE_DIRS}
     )
+    target_include_directories(test_tts PRIVATE
+        ${LIBRSVG_INCLUDE_DIRS}
+        ${CAIRO_INCLUDE_DIRS}
+        ${GLIB_INCLUDE_DIRS}
+    )
 
     link_directories(${LIBRSVG_LIBRARY_DIRS})
 endif()
@@ -146,6 +167,7 @@ endif()
 # Link libraries — common to all platforms
 # -------------------------------------------------------------------
 target_link_directories(${EXE_NAME} PRIVATE ${T4K_COMMON_LIBRARY_DIRS})
+target_link_directories(test_tts PRIVATE ${T4K_COMMON_LIBRARY_DIRS})
 
 target_link_libraries(${EXE_NAME}
     PkgConfig::SDL3
@@ -154,6 +176,12 @@ target_link_libraries(${EXE_NAME}
     PkgConfig::SDL3_MIXER
     ${LIBXML2_LIBRARIES}
     ${LIBRSVG_LIBRARIES}
+    ${T4K_COMMON_LIBRARIES}
+)
+
+target_link_libraries(test_tts
+    PkgConfig::SDL3
+    PkgConfig::SDL3_MIXER
     ${T4K_COMMON_LIBRARIES}
 )
 
@@ -167,6 +195,11 @@ if(MINGW)
         ${LIBPNG_LIBRARIES}
         ${ZLIB_LIBRARIES}
         # Required Windows system libraries
+        uuid ole32 wsock32 shlwapi
+    )
+    target_link_libraries(test_tts
+        ${LIBINTL_LIBRARIES}
+        ${LIBICONV_LIBRARIES}
         uuid ole32 wsock32 shlwapi
     )
     # -mwindows: suppresses the console window in the final .exe
@@ -187,9 +220,15 @@ if(WITH_ESPEAK)
     if(WITH_ESPEAK_NG)
         target_include_directories(${EXE_NAME} PRIVATE ${ESPEAK_NG_INCLUDE_DIRS})
         target_link_libraries(${EXE_NAME} ${ESPEAK_NG_LIBRARIES})
+        
+        target_include_directories(test_tts PRIVATE ${ESPEAK_NG_INCLUDE_DIRS})
+        target_link_libraries(test_tts ${ESPEAK_NG_LIBRARIES})
     else()
         target_include_directories(${EXE_NAME} PRIVATE ${ESPEAK_INCLUDE_DIRS})
         target_link_libraries(${EXE_NAME} ${ESPEAK_LIBRARIES})
+        
+        target_include_directories(test_tts PRIVATE ${ESPEAK_INCLUDE_DIRS})
+        target_link_libraries(test_tts ${ESPEAK_LIBRARIES})
     endif()
 endif()
 

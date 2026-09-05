@@ -100,7 +100,7 @@ int PlayLaserGame(int diff_level)
 	  
 
 	//TTS Word announcer variables
-	SDL_Thread *thread;
+	// Using global tts_announcer_thread
 
 	//Braille Variables
 	wchar_t pressed_letters[1000];
@@ -181,8 +181,10 @@ int PlayLaserGame(int diff_level)
 
 
 	 //Call announcer function in thread which annonces the word to type 
-	if(settings.tts)
-		thread = SDL_CreateThread(tts_announcer, "tts", NULL);	
+	if(settings.tts) {
+		tts_announcer_switch = 1;
+		tts_announcer_thread = SDL_CreateThread(tts_announcer, "tts", NULL);
+	}
 	
 	//Inetialising braille variables
 	braille_iter = 0;
@@ -761,8 +763,10 @@ int PlayLaserGame(int diff_level)
 			if(quit == 0){
 					T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("Pause Released!"));
 					//Call announcer function in thread which annonces the word to type
-					if(settings.tts)
-						thread = SDL_CreateThread(tts_announcer, "tts", NULL);
+					if(settings.tts) {
+						tts_announcer_switch = 1;
+						tts_announcer_thread = SDL_CreateThread(tts_announcer, "tts", NULL);
+					}
 			}							
 			paused = 0;
 		}
@@ -1265,7 +1269,11 @@ static void laser_add_score(int inc)
 /* Stop annoncing thread safely */
 static void stop_tts_announcer()
 {
-	tts_announcer_switch = 0;
+	if (tts_announcer_thread) {
+		tts_announcer_switch = 0;
+		SDL_WaitThread(tts_announcer_thread, NULL);
+		tts_announcer_thread = NULL;
+	}
 }
 
 
@@ -1275,8 +1283,10 @@ static int tts_announcer(void *unused)
 {
 	int lowest,lowest_y,i,iter;
 	wchar_t buffer[3000];
+#if 1 // FIX: Track last spoken word to prevent TTS stutter
+	static wchar_t last_spoken[3000] = {0};
+#endif
 	int pitch_and_rate;
-	tts_announcer_switch = 1;
 	while(1)
 	{
 		if(tts_announcer_switch == 0)
@@ -1347,10 +1357,17 @@ static int tts_announcer(void *unused)
 			pitch_and_rate = 30;
 		if (pitch_and_rate > 60)
 			pitch_and_rate = 60;	
+#if 1 // FIX: Prevent stutter by only speaking when text changes
+		if (wcscmp(buffer, last_spoken) != 0)
+		{
+			T4K_Tts_say(pitch_and_rate,pitch_and_rate,INTERRUPT,"%S",buffer);
+			wcscpy(last_spoken, buffer);
+		}
+#else
 		T4K_Tts_say(pitch_and_rate,pitch_and_rate,INTERRUPT,"%S",buffer);
+#endif
 		
 		//Wait to finish saying the previus word
-		SDL_WaitThread(tts_thread,NULL);
 		SDL_Delay(100);
 		fprintf(stderr,"\nPos = %d",braille_letter_pos);
 			

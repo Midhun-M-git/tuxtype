@@ -388,9 +388,20 @@ void ChooseListToEdit(void)
       closedir(lists_dir);
 
 
-      // white_titles_surf[MAX_WORD_LISTS] = {NULL};  
-      // yellow_titles_surf[MAX_WORD_LISTS] = {NULL};
-
+      /* Free old surfaces to prevent memory leak */
+      for (i = 0; i < MAX_WORD_LISTS; i++)
+      {
+        if (white_titles_surf[i])
+        {
+          SDL_FreeSurface(white_titles_surf[i]);
+          white_titles_surf[i] = NULL;
+        }
+        if (yellow_titles_surf[i])
+        {
+          SDL_FreeSurface(yellow_titles_surf[i]);
+          yellow_titles_surf[i] = NULL;
+        }
+      }
 
       /* Render SDL_Surfaces of title text for later blitting: */
       for (i = 0; i < num_lists; i++)
@@ -682,6 +693,8 @@ void EditWordList(char* words_file)
               // remove the last character from the string
               temp[len - 1] = temp[len];
               len = ConvertToUTF8(temp, words_in_list[loc+1], MAX_WORD_SIZE);
+              if (white_words[loc]) SDL_FreeSurface(white_words[loc]);
+              if (yellow_words[loc]) SDL_FreeSurface(yellow_words[loc]);
               white_words[loc] = BlackOutline(words_in_list[loc+1], DEFAULT_MENU_FONT_SIZE, &white );
               yellow_words[loc] = BlackOutline(words_in_list[loc+1], DEFAULT_MENU_FONT_SIZE, &yellow);  
             }
@@ -720,6 +733,8 @@ void EditWordList(char* words_file)
                     DEBUGCODE
                     { fprintf(stderr, "word in list = %s\n", words_in_list[x+1]); }
 
+                    if (white_words[x]) SDL_FreeSurface(white_words[x]);
+                    if (yellow_words[x]) SDL_FreeSurface(yellow_words[x]);
                     white_words[x] = BlackOutline(words_in_list[x+1],
                                                   DEFAULT_MENU_FONT_SIZE, &white ); 
                     yellow_words[x] = BlackOutline(words_in_list[x+1],
@@ -727,6 +742,8 @@ void EditWordList(char* words_file)
                   }
                   else
                   {
+                    if (white_words[x]) SDL_FreeSurface(white_words[x]);
+                    if (yellow_words[x]) SDL_FreeSurface(yellow_words[x]);
                     white_words[x] = NULL;
                     yellow_words[x] = NULL;
                   }
@@ -740,6 +757,8 @@ void EditWordList(char* words_file)
                 { fprintf(stderr, "There are current: %i words\n", number_of_words); }
               }
 
+              if (white_words[loc]) SDL_FreeSurface(white_words[loc]);
+              if (yellow_words[loc]) SDL_FreeSurface(yellow_words[loc]);
               white_words[loc] = BlackOutline(words_in_list[loc+1],
                                               DEFAULT_MENU_FONT_SIZE, &white );
               yellow_words[loc] = BlackOutline(words_in_list[loc+1],
@@ -848,6 +867,8 @@ void EditWordList(char* words_file)
               ConvertToUTF8(temp, words_in_list[loc + 1], MAX_WORD_SIZE);
 
               // Copy back to the on-screen list
+              if (white_words[loc]) SDL_FreeSurface(white_words[loc]);
+              if (yellow_words[loc]) SDL_FreeSurface(yellow_words[loc]);
               white_words[loc] = BlackOutline(words_in_list[loc + 1],
                                               DEFAULT_MENU_FONT_SIZE, &white);
               yellow_words[loc] = BlackOutline(words_in_list[loc + 1],
