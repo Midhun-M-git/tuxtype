@@ -30,6 +30,7 @@ jobs:
           mingw-w64-ucrt-x86_64-librsvg
           mingw-w64-ucrt-x86_64-libxml2
           mingw-w64-ucrt-x86_64-gettext
+          make
 
     - name: Checkout tuxtype
       uses: actions/checkout@v4
