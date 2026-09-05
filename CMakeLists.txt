@@ -7,7 +7,7 @@
 # build is completely unaffected.
 #
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
 set(PACKAGE_NAME "tuxtype")
 set(PACKAGE_VERSION "1.8.3")
