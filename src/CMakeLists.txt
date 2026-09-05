@@ -6,7 +6,7 @@
 # Debian/Linux Autotools build is completely unaffected.
 #
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
 # Set variables consumed by config.h.cmake
 set(HAVE_RSVG 1)
