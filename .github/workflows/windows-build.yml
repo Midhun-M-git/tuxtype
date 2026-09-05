@@ -63,7 +63,7 @@ jobs:
         mkdir TuxType-Windows
         # Copy Executable and Library
         cp tuxtype/build/src/TuxType.exe TuxType-Windows/
-        cp /ucrt64/bin/libt4k_common.dll TuxType-Windows/
+        cp t4kcommon/build/src/libt4k_common.dll TuxType-Windows/
         
         # Copy necessary MSYS2 DLLs using ldd to trace dependencies
         # (A simple script to extract DLLs from the ucrt64/bin folder)
