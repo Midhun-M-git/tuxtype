@@ -79,12 +79,6 @@ cmake --build .
 ```
 *(Note: CMake will automatically find and compile the localized `.po` translation files into binary `.mo` formats during the build).*
 
-### Step 3: Packaging (MSIX)
-To create a Windows App Package, use the provided powershell script:
-```powershell
-powershell.exe -ExecutionPolicy Bypass -File .\repack.ps1
-```
-
 ---
 
 ## Running TuxType
