@@ -9,6 +9,9 @@
 #define VERSION "@PACKAGE_VERSION@"
 #define PACKAGE_STRING "@APP_NAME@-@PACKAGE_VERSION@"
 
+/* Enable Native Language Support (Gettext) */
+#define ENABLE_NLS 1
+
 /* Define to 1 if you have the libxml-2.0 library */
 #define HAVE_LIBXML2 1
 
