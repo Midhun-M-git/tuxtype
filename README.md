@@ -27,7 +27,7 @@ sudo ldconfig
 
 ---
 
-## Build & Installation Guide for TuxType
+## Build & Installation Guide (Linux / Autotools)
 
 ### Step 1: Clone the Repository
 ```bash
@@ -54,9 +54,42 @@ sudo make install
 
 ---
 
+## Build & Installation Guide (Windows / CMake)
+
+TuxType has been modernized to support native Windows builds using **CMake** and **vcpkg** (for SDL3 dependency management).
+
+### Step 1: Build `t4kcommon` First
+```powershell
+git clone https://github.com/Midhun-M-git/t4kcommon.git
+cd t4kcommon
+mkdir build
+cd build
+cmake .. -DCMAKE_TOOLCHAIN_FILE=[path-to-vcpkg]/scripts/buildsystems/vcpkg.cmake
+cmake --build .
+```
+
+### Step 2: Build `tuxtype`
+```powershell
+git clone https://github.com/Midhun-M-git/tuxtype.git
+cd tuxtype
+mkdir build
+cd build
+cmake .. -DCMAKE_TOOLCHAIN_FILE=[path-to-vcpkg]/scripts/buildsystems/vcpkg.cmake
+cmake --build .
+```
+*(Note: CMake will automatically find and compile the localized `.po` translation files into binary `.mo` formats during the build).*
+
+### Step 3: Packaging (MSIX)
+To create a Windows App Package, use the provided powershell script:
+```powershell
+powershell.exe -ExecutionPolicy Bypass -File .\repack.ps1
+```
+
+---
+
 ## Running TuxType
 
-To run TuxType directly from the build directory:
+To run TuxType directly from the build directory on Linux:
 
 ```bash
 cd tuxtype/src
@@ -86,3 +119,9 @@ tuxtype
 - **Comet Zap**: Protect cities from incoming comets using laser typing defense.
 - **Practice & Lessons**: Practice alphabet typing and finger positioning exercises.
 - **Accessibility Integration**: Real-time TTS screen reading, multi-language voice support, and localized gettext translations.
+
+### Recent Updates & Bug Fixes
+- **Asynchronous Window Resizing**: Support for modern OS window managers via SDL3 event listening for `SDL_EVENT_WINDOW_RESIZED`, fixing `F10` fullscreen rendering bugs and clipping issues.
+- **Memory Optimization**: Plugged severe memory leaks in the Wordlist Editor and dynamic text surfaces.
+- **Advanced Text Rendering**: Upgraded the `T4K_sdl.c` text engine to dynamically calculate spacing and bounding boxes for complex multi-line scripts (like Malayalam).
+- **Automated Translation Building**: CMake automatically compiles `.po` translation files and packages them.
