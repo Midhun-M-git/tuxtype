@@ -128,6 +128,7 @@ void GraphicsInit(void)
   }
 
   T4K_SetScreen(screen);
+  T4K_SetResolutions(RES_X, RES_Y, fs_res_x, fs_res_y);
 
   //Set application's icon:
   seticon();

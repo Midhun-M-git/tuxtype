@@ -1208,7 +1208,7 @@ static void run_script(void)
       SDL_Surface* img = LoadImage(curPage->background, IMG_ALPHA|IMG_NOT_REQUIRED);
       if (img)
       {
-        if (window && (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN))
+        if (settings.fullscreen || (window && (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN)))
         {
           SDL_Surface* fsimg = zoom(img, fs_res_x, fs_res_y);
           if (fsimg)
@@ -1229,7 +1229,7 @@ static void run_script(void)
       SDL_Surface* img = LoadImage(curScript->background, IMG_ALPHA|IMG_NOT_REQUIRED);
       if (img)
       {
-        if (window && (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN))
+        if (settings.fullscreen || (window && (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN)))
         { 
           SDL_Surface* fsimg = zoom(img, fs_res_x, fs_res_y);
           if (fsimg)
@@ -1319,7 +1319,7 @@ static void run_script(void)
           if (img)
           {
             /* hack: since this is the background it needs to scale when in fullscreen -MDT */
-            if (window && (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN))
+            if (settings.fullscreen || (window && (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN)))
             {
               SDL_Surface* fsimg = zoom(img, fs_res_x, fs_res_y);
               if (fsimg)

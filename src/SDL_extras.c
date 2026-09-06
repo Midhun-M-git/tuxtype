@@ -465,11 +465,13 @@ void SwitchScreenMode(void)
     if (!is_fs)
     {
       SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+      settings.fullscreen = 1;
     }
     else
     {
       SDL_SetWindowFullscreen(window, 0);
       SDL_SetWindowSize(window, RES_X, RES_Y);
+      settings.fullscreen = 0;
     }
   }
 
@@ -492,6 +494,7 @@ void SwitchScreenMode(void)
             is_fs ? "windowed" : "fullscreen",
             SDL_GetError());
   }
+  T4K_SetScreen(screen);
 }
 
 

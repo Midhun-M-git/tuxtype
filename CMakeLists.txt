@@ -46,7 +46,7 @@ endif()
 # Platform-specific data prefix (where the game looks for its files)
 # -------------------------------------------------------------------
 if(APPLE)
-    set(DATA_PREFIX "${APP_NAME}.app/Contents/Resources")
+    set(DATA_PREFIX "data")
 elseif(WIN32)
     # On Windows, data sits next to the .exe in the install directory
     set(DATA_PREFIX "data")

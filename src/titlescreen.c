@@ -103,7 +103,7 @@ SDL_Rect bkg_rect,
 /* This syntax is full of fluffy kittens! (note: kittens sold separately) */
 SDL_Surface* current_bkg()
 { 
-    if (window && (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN))
+    if (settings.fullscreen || (window && (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN)))
         return fs_bkg;
     return win_bkg; 
 }
@@ -113,7 +113,7 @@ SDL_Surface* current_bkg()
 /* the "other" one.                                              */
 void set_current_bkg(SDL_Surface* new_bkg)
 {
-    if (window && (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN))
+    if (settings.fullscreen || (window && (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN)))
     {
         if(fs_bkg != NULL)
             SDL_FreeSurface(fs_bkg);
@@ -258,14 +258,10 @@ void TitleScreen(void)
     /* Draw background (center it if it's smaller than screen) */
     if(current_bkg())
     {
-        /* FIXME not sure trans_wipe() works in Windows: */
-        T4K_TransWipe(current_bkg(), RANDOM_WIPE, 5, 20);
-
-        DEBUGCODE
+        if (!T4K_TransWipe(current_bkg(), RANDOM_WIPE, 5, 20))
         {
-            /* Make sure background gets drawn (since trans_wipe() doesn't */
-            /* seem to work reliably as of yet):                          */
             SDL_BlitSurface(current_bkg(), NULL, T4K_GetScreen(), &bkg_rect);
+            T4K_PresentScreen();
         }
     }
 
@@ -640,7 +636,7 @@ void ShowMessageWrap( int font_size, const char* str )
     int maxline;
     Uint32 timer = 0;
 
-    if (window && (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN))
+    if (settings.fullscreen || (window && (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN)))
         nline = T4K_LineWrap( str, strings, 70, MAX_LINES, MAX_LINEWIDTH );
     else
         nline = T4K_LineWrap( str, strings, 35, MAX_LINES, MAX_LINEWIDTH );
