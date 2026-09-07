@@ -231,11 +231,13 @@ void TitleScreen(void)
     while ((SDL_GetTicks() - start_time) < logo_msec)
     {
         /* Check to see if user pressed escape */
-        if (SDL_PollEvent(&event)
-                && event.type==SDL_EVENT_KEY_DOWN
-                && event.key.key == SDLK_ESCAPE)
+        while (SDL_PollEvent(&event))
         {
-            return;
+            if (event.type==SDL_EVENT_KEY_DOWN
+                    && event.key.key == SDLK_ESCAPE)
+            {
+                return;
+            }
         }
         SDL_Delay(50);
     }
