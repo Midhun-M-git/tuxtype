@@ -214,6 +214,16 @@ if(UNIX)
     target_link_libraries(${EXE_NAME} m)
 endif()
 
+# On Linux: embed the local t4k_common library path into the binary's RPATH so
+# the dynamic loader finds our freshly-built .so at runtime, not the stale
+# system-installed one. Guarded by UNIX AND NOT APPLE so this block has
+# zero effect on macOS (which uses dylibbundler) and Windows (no RPATH concept).
+if(UNIX AND NOT APPLE)
+    set_target_properties(${EXE_NAME} PROPERTIES
+        BUILD_RPATH "${CMAKE_SOURCE_DIR}/../t4kcommon/build/src"
+    )
+endif()
+
 # -------------------------------------------------------------------
 # espeak-ng / espeak (TTS) — optional
 # -------------------------------------------------------------------

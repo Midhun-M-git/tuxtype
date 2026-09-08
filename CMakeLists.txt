@@ -32,14 +32,33 @@ pkg_check_modules(ESPEAK_NG           espeak-ng)
 
 find_package(LibXml2 REQUIRED)
 
-# t4kcommon — the shared library we built earlier
-pkg_check_modules(T4K_COMMON t4k_common)
-if(NOT T4K_COMMON_FOUND)
-    # Fallback: look next to this repo (typical development layout)
-    set(T4K_COMMON_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/../t4kcommon/src")
-    set(T4K_COMMON_LIBRARY_DIRS "${CMAKE_SOURCE_DIR}/../t4kcommon/build/src")
+# t4kcommon — prefer the locally-built version on Linux to avoid picking up a
+# stale system-installed libt4k_common.so that is missing SDL3-era symbols.
+#
+# Strategy by platform:
+#   Linux  : if ../t4kcommon/build/src exists, always use it (bypass pkg-config).
+#             This prevents the old system package from being chosen.
+#   macOS  : falls into the else branch; CMAKE_PREFIX_PATH already points to
+#             stage/ (set by build-mac.sh), so pkg-config finds the right one.
+#   MinGW  : no system t4k_common exists; pkg-config fails → fallback used as before.
+set(_T4K_LOCAL_LIB_DIR "${CMAKE_SOURCE_DIR}/../t4kcommon/build/src")
+set(_T4K_LOCAL_INC_DIR "${CMAKE_SOURCE_DIR}/../t4kcommon/src")
+
+if(UNIX AND NOT APPLE AND EXISTS "${_T4K_LOCAL_LIB_DIR}")
+    # Linux: always use the locally-built libt4k_common to avoid stale system package
+    set(T4K_COMMON_INCLUDE_DIRS "${_T4K_LOCAL_INC_DIR}")
+    set(T4K_COMMON_LIBRARY_DIRS "${_T4K_LOCAL_LIB_DIR}")
     set(T4K_COMMON_LIBRARIES    "t4k_common")
-    message(STATUS "t4k_common not found via pkg-config, using fallback path: ${T4K_COMMON_LIBRARY_DIRS}")
+    message(STATUS "Linux: using local t4k_common from: ${_T4K_LOCAL_LIB_DIR}")
+else()
+    # macOS / Windows / fallback: let pkg-config (or CMAKE_PREFIX_PATH) find it
+    pkg_check_modules(T4K_COMMON t4k_common)
+    if(NOT T4K_COMMON_FOUND)
+        set(T4K_COMMON_INCLUDE_DIRS "${_T4K_LOCAL_INC_DIR}")
+        set(T4K_COMMON_LIBRARY_DIRS "${_T4K_LOCAL_LIB_DIR}")
+        set(T4K_COMMON_LIBRARIES    "t4k_common")
+        message(STATUS "t4k_common not found via pkg-config, using fallback: ${_T4K_LOCAL_LIB_DIR}")
+    endif()
 endif()
 
 # -------------------------------------------------------------------
