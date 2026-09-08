@@ -182,6 +182,7 @@ target_link_libraries(${EXE_NAME}
 target_link_libraries(test_tts
     PkgConfig::SDL3
     PkgConfig::SDL3_MIXER
+    ${LIBRSVG_LIBRARIES}
     ${T4K_COMMON_LIBRARIES}
 )
 
