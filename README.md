@@ -6,7 +6,7 @@
 
 ## Project Team & Organization
 
-This SDL3 edition of TuxType is developed under **[Zendalona](https://zendalona.com/)**, an organization dedicated to building accessible open-source educational software.
+This SDL3 edition of TuxType is developed under **[Zendalona](https://zendalona.com/)**.
 
 | Role | Name | Contact |
 |---|---|---|
