@@ -388,6 +388,7 @@ int PlayCascade(int diflevel)
 				  T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("Pause Released!"));
 				  //Call announcer function in thread which annonces the word to type
 				  if(settings.tts) {
+						stop_tts_announcer();
 						tts_announcer_switch = 1;
 						tts_announcer_thread = SDL_CreateThread(tts_announcer, "tts", &struct_with_data_address);
 				  }
@@ -416,8 +417,8 @@ int PlayCascade(int diflevel)
 				/* Store each keys till a key released */
 				if(settings.braille)
 				{
-				   pressed_letters[braille_iter] = event.key.key;
-                   braille_iter++;
+				   pressed_letters[braille_iter] = (wchar_t)(event.key.key & 0xFFFF);
+                   if (braille_iter < 999) braille_iter++;
                    pressed_letters[braille_iter] = L'\0';   
 				}
 				else
@@ -662,6 +663,7 @@ int PlayCascade(int diflevel)
      {
 		fishies = 0; //Otherwise thread will announce old words and cause segfault
 		if(settings.tts) {
+			stop_tts_announcer();
 			tts_announcer_switch = 1;
 			tts_announcer_thread = SDL_CreateThread(tts_announcer, "tts", &struct_with_data_address);
 		}
@@ -1810,7 +1812,7 @@ static int tts_announcer(void *struct_address)
 #if 1 // FIX: Track last spoken word to prevent TTS stutter
 	static wchar_t last_spoken[9000] = {0};
 #endif
-	int fish_object_positions[10];
+	int fish_object_positions[MAX_FISHIES_HARD + 1];
 	int alive,temp;
 	int pitch_and_rate;
 	int which,correct_position;
@@ -1851,6 +1853,7 @@ static int tts_announcer(void *struct_address)
 			{
 				if (!fish_object[i].can_eat && fish_object[i].alive)
 				{
+					if (j >= MAX_FISHIES_HARD) break;
 					fish_object_positions[j]  = i; 
 					j++;
 				}

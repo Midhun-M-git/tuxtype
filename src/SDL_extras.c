@@ -70,6 +70,8 @@ void ToggleTTS(void) {
     SaveSettings();
 }
 
+#include "braille.h"
+
 void ToggleBraille(void) {
     fprintf(stderr, "ToggleBraille() called, current braille=%d, tts=%d\n", settings.braille, settings.tts);
     fflush(stderr);
@@ -84,6 +86,22 @@ void ToggleBraille(void) {
         T4K_Tts_set_status(1);
         T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT, _("Braille output enabled"));
         T4K_Tts_set_status(settings.tts);
+        
+        /* Load the braille dictionary now that mode is being enabled */
+        char file_name[100];
+        if (settings.use_english)
+            snprintf(file_name, sizeof(file_name), "english.txt");
+        else
+            snprintf(file_name, sizeof(file_name), "%s.txt", settings.theme_name);
+
+        if (braille_language_loader(file_name) == 0) {
+            /* Map unavailable for this language — fall back to disabled */
+            T4K_Tts_set_status(1);
+            T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
+                        _("Braille mode is not available for this language. Braille disabled!"));
+            T4K_Tts_set_status(settings.tts);
+            settings.braille = 0;
+        }
     }
     SaveSettings();
 }

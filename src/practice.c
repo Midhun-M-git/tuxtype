@@ -619,8 +619,8 @@ int Phrases(wchar_t* pphrase )
         /* Store each keys till a key released */
         if(settings.braille)
 		{
-		   pressed_letters[braille_iter] = event.key.key;
-           braille_iter++;
+		   pressed_letters[braille_iter] = (wchar_t)(event.key.key & 0xFFFF);
+           if (braille_iter < 999) braille_iter++;
            pressed_letters[braille_iter] = L'\0';
            check_key = 0;
 		}
@@ -743,7 +743,7 @@ int Phrases(wchar_t* pphrase )
 
         /****************************************************/
         /*  ---------- If user typed correct character, handle it: --------------- */
-        if (phrases[cur_phrase][cursor] == event.key.key || (settings.braille && phrases[cur_phrase][cursor] == tmp))
+        if (phrases[cur_phrase][cursor] == tmp)
         {
           cursor++;
           correct_chars++;
@@ -998,7 +998,7 @@ int Phrases(wchar_t* pphrase )
 									tts_temp[len] = L'\0';
 									T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"Type %S with dot %S",get_next_word_letters(cur_phrase,cursor,0),tts_temp);
 									tts_temp[0] = L'\0';
-						
+									break;
 								}
 							}
 					  }
@@ -1768,6 +1768,7 @@ void set_hand(int cursor,int cur_phrase)
 							braille_letter_pos = 1;
 						else
 							braille_letter_pos = 0;					
+						break;
 					}
 				}
 			}
