@@ -4,6 +4,31 @@
 
 ---
 
+## Project Team & Organization
+
+This SDL3 edition of TuxType is developed under **[Zendalona](https://zendalona.com/)**, an organization dedicated to building accessible open-source educational software.
+
+| Role | Name | Contact |
+|---|---|---|
+| **Founder, Zendalona** | Nalin Sathyan | [Nalin.x.Linux@gmail.com](mailto:Nalin.x.Linux@gmail.com) |
+| **Mentor** | Nalin Sathyan | — |
+| **Mentor** | Mukundhan Annamalai | — |
+| **Mentor** | Deepak Aggarwal | [deepak.aggarwal9@gmail.com](mailto:deepak.aggarwal9@gmail.com) |
+| **SDL3 Migration & Lead Developer** | Midhun M | [mmidhun781@gmail.com](mailto:mmidhun781@gmail.com) |
+| **SDL3 Migration Co-Developer** | Bholu Kumar D | [bholukumar3352@gmail.com](mailto:bholukumar3352@gmail.com) |
+
+### Key Contributions by Midhun M & Bholu Kumar D
+- **SDL 1.2 → SDL3 migration**: Complete port of the entire codebase from SDL 1.2 to SDL3
+- **F5 — TTS Toggle**: Implementation of runtime Text-To-Speech toggle (F5 key)
+- **F9 — Braille Toggle**: Implementation of runtime Braille mode toggle (F9 key)
+- **Windows build**: Native Windows MSIX package and CMake build system
+- **macOS build**: macOS app bundle and build system
+- **Ubuntu build**: Linux CMake build system and CI workflow
+
+> Mentored by **Nalin Sathyan** (Founder, Zendalona), **Mukundhan Annamalai**, and **Deepak Aggarwal**, under the **Zendalona** organization.
+
+---
+
 ## Prerequisites
 
 Before compiling TuxType, make sure `t4kcommon` (SDL3 version) and development libraries are installed on your system.

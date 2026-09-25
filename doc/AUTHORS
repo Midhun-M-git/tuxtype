@@ -2,6 +2,26 @@ Tux Typing Original Author:
 ----------
 Sam Hart <hart@geekcomix.com>
 
+SDL3 Edition — Organization & Team:
+------------------------------------
+Organization: Zendalona <https://zendalona.com/>
+Founder:      Nalin Sathyan <Nalin.x.Linux@gmail.com>
+
+Mentors:
+  Nalin Sathyan <Nalin.x.Linux@gmail.com>
+  Mukundhan Annamalai
+  Deepak Aggarwal <deepak.aggarwal9@gmail.com>
+
+Testers:
+  Bholu Kumar D
+  Haritha D
+  Dharshin R
+
+SDL3 Migration Developers:
+  Midhun M <mmidhun781@gmail.com>     - SDL2->SDL3 migration, F5 TTS toggle, F9 Braille toggle,
+                                        Windows MSIX build, macOS app bundle, Ubuntu build system
+  Bholu Kumar D <bholukumar3352@gmail.com> - SDL3 migration co-developer, F5 TTS toggle, F9 Braille toggle
+
 Current Maintainer and Lead Coder:
 -------
 David Bruce <davidstuartbruce@gmail.com>
