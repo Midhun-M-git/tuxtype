@@ -239,6 +239,7 @@ void TitleScreen(void)
                 return;
             }
         }
+        T4K_PresentScreen();
         SDL_Delay(50);
     }
 
