@@ -14,6 +14,12 @@ SUBDIRS = data \
 	po	\
 	src
 
+desktopdir = $(datadir)/applications
+desktop_DATA = tuxtype.desktop
+
+icondir = $(datadir)/pixmaps
+icon_DATA = icon.png
+
 EXTRA_DIST = tuxtype.spec \
 	tuxtype.desktop  \
 	tuxtype.ico \

@@ -131,3 +131,14 @@ if(MSGFMT_EXECUTABLE)
 else()
     message(WARNING "msgfmt not found. Translations will not be compiled.")
 endif()
+
+# -------------------------------------------------------------------
+# Linux Desktop Launcher & Pixmap Installation
+# -------------------------------------------------------------------
+if(UNIX AND NOT APPLE)
+    install(FILES "${CMAKE_SOURCE_DIR}/tuxtype.desktop"
+            DESTINATION "share/applications")
+    install(FILES "${CMAKE_SOURCE_DIR}/data/images/icons/icon.png"
+            DESTINATION "share/pixmaps"
+            RENAME "tuxtype.png")
+endif()
