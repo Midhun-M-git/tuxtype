@@ -168,7 +168,9 @@ int handle_activity(int act, int param)
 			ChooseTheme();
 			LoadLang();
 			LoadKeyboard();
+			InvalidateTitleScreen();
 			T4K_PrerenderAll();
+			SaveSettings();
 			//load_media();
             break;
 

@@ -44,7 +44,7 @@ int my_setenv (const char * name, const char * value)
    }
 #endif
 
-#ifdef HAVE_PUTENV
+#if defined(WIN32) || defined(_WIN32) || defined(HAVE_PUTENV)
   {
    char* buffer = (char*)malloc(namelen+1+valuelen+1);
    if (!buffer)
@@ -59,13 +59,11 @@ int my_setenv (const char * name, const char * value)
    return putenv(buffer);
   }
 
-#else
-#ifdef HAVE_SETENV
+#elif defined(HAVE_SETENV)
    return setenv(name,value,1);
 #else
    /* Uh oh, neither putenv() nor setenv() ... */
    fprintf(stderr, "my_setenv() - neither HAVE_PUTENV nor HAVE_SETENV defined\n");
    return -1;
-#endif
 #endif
 }

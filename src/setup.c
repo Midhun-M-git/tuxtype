@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "globals.h"
+#include <ctype.h>
 #include "funcs.h"
 #include "SDL_extras.h"
 
@@ -290,6 +291,16 @@ static int load_settings_fp(FILE* fp)
   {
     if (EOF == fscanf(fp, "%[^=]=%[^\n]\n", setting, value))
       break;
+
+    /* Strip trailing \r, \n, and whitespace from setting and value */
+    {
+      size_t slen = strlen(setting);
+      while (slen > 0 && (setting[slen - 1] == '\r' || setting[slen - 1] == '\n' || isspace((unsigned char)setting[slen - 1])))
+        setting[--slen] = '\0';
+      size_t vlen = strlen(value);
+      while (vlen > 0 && (value[vlen - 1] == '\r' || value[vlen - 1] == '\n' || isspace((unsigned char)value[vlen - 1])))
+        value[--vlen] = '\0';
+    }
 
     DEBUGCODE {fprintf(stderr, "%s = %s", setting, value );}
       //For now we are not reading or saving the language selection: 

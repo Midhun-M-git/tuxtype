@@ -89,23 +89,42 @@ int CheckFile(const char* file)
 void LoadLang(void)
 {
   char *s1, *s2, *s3, *s4;
-  char buf [30];
   char tts_language[10];
+  char lang_chain[64];
+  char lang_code[16];
+  int k = 0;
 
-  if (settings.theme_locale_name[0] != '\0')
+  extern int _nl_msg_cat_cntr;
+
+  /* Extract base language code before '_' or '.' (e.g. "fr" from "fr_FR.utf8") */
+  while (settings.theme_locale_name[k] && settings.theme_locale_name[k] != '_' && settings.theme_locale_name[k] != '.' && k < sizeof(lang_code) - 1)
   {
-    my_setenv("LANGUAGE", settings.theme_locale_name);
-    my_setenv("LC_ALL", settings.theme_locale_name);
-    my_setenv("LANG", settings.theme_locale_name);
+    lang_code[k] = settings.theme_locale_name[k];
+    k++;
+  }
+  lang_code[k] = '\0';
+
+  if (settings.use_english || settings.theme_locale_name[0] == '\0')
+  {
+    my_setenv("LANGUAGE", "en");
+    my_setenv("LC_ALL", "C");
+    my_setenv("LANG", "C");
+    strncpy(tts_language, "en", sizeof(tts_language));
   }
   else
   {
-    my_setenv("LANGUAGE", "en");
-    my_setenv("LC_ALL", "en_US.UTF-8");
-    my_setenv("LANG", "en_US.UTF-8");
+    if (strcmp(lang_code, settings.theme_locale_name) != 0 && lang_code[0] != '\0')
+      snprintf(lang_chain, sizeof(lang_chain), "%s:%s:en", settings.theme_locale_name, lang_code);
+    else
+      snprintf(lang_chain, sizeof(lang_chain), "%s:en", settings.theme_locale_name);
+
+    my_setenv("LANGUAGE", lang_chain);
+    my_setenv("LC_ALL", settings.theme_locale_name);
+    my_setenv("LANG", settings.theme_locale_name);
+    strncpy(tts_language, lang_code, sizeof(tts_language));
   }
 
-  s1 = setlocale(LC_ALL, settings.theme_locale_name);
+  s1 = setlocale(LC_ALL, settings.use_english ? "C" : settings.theme_locale_name);
 
   char localepath[FNLEN];
   snprintf(localepath, FNLEN - 1, "%s/locale", settings.default_data_path);
@@ -116,67 +135,49 @@ void LoadLang(void)
   s3 = bind_textdomain_codeset(PACKAGE, "UTF-8");
   s4 = textdomain(PACKAGE);
 
-
+  /* Invalidate GNU gettext cached message catalogs so new LANGUAGE is loaded */
+  _nl_msg_cat_cntr++;
 
   DEBUGCODE
   {
     fprintf(stderr, "PACKAGE = %s\n", PACKAGE);
     fprintf(stderr, "TUXLOCALE = %s\n", TUXLOCALE);
-    fprintf(stderr, "setlocale(LC_ALL, %s) returned: %s\n", settings.theme_locale_name, s1);
+    fprintf(stderr, "setlocale(LC_ALL, %s) returned: %s\n", settings.use_english ? "C" : settings.theme_locale_name, s1);
     fprintf(stderr, "bindtextdomain(PACKAGE, TUXLOCALE) returned: %s\n", s2);
     fprintf(stderr, "bind_textdomain_codeset(PACKAGE, \"UTF-8\") returned: %s\n", s3);
     fprintf(stderr, "textdomain(PACKAGE) returned: %s\n", s4);
-    fprintf(stderr, "gettext(\"Fish\"): %s\n\n", gettext("Fish"));
-//    fprintf(stderr, "After gettext() call\n");
+    fprintf(stderr, "gettext(\"Fish Cascade\"): %s\n\n", gettext("Fish Cascade"));
   }
 
-  snprintf(buf, sizeof(buf), "%s", settings.theme_locale_name);
-  if (strlen(buf) > 5)
-    buf[5] = '\0';  //en_US" rather than "en_US.utf8"
-  DEBUGCODE { fprintf(stderr, "buf is: %s\n", buf); }
-
-  
-    
   /* Loading braille Map */
   if (settings.braille)
   {
-	  char file_name[100];
-	  if(settings.use_english){
-			sprintf(file_name,"english.txt");
-	  }
-	  else{
-		  sprintf(file_name,"%s.txt",settings.theme_name);
-	  }
-	  
-	  //If map not found then disable braille mode
-	  if (braille_language_loader(file_name) == 0){
-		  T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND
-				,gettext("Braille mode is not available for this language. Braille disabled!"));
-		  DEBUGCODE{  fprintf(stderr,"Braille disabled!"); }
-		  settings.braille = 0;
-	  }
+    char file_name[100];
+    if (settings.use_english)
+      sprintf(file_name, "english.txt");
+    else
+      sprintf(file_name, "%s.txt", settings.theme_name);
+
+    /* If map not found then disable braille mode */
+    if (braille_language_loader(file_name) == 0)
+    {
+      T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, APPEND,
+        gettext("Braille mode is not available for this language. Braille disabled!"));
+      DEBUGCODE { fprintf(stderr, "Braille disabled!\n"); }
+      settings.braille = 0;
+    }
   }
 
-  /* Setting TTS language 
-   * with code such as ml for malayalam*/
-   sprintf(tts_language,"%.*s",2,buf);
-   if (!T4K_Tts_set_voice(tts_language))
-   {
-	 T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,
-		gettext("Tts is not available for this language. Tts disabled!"));
-     settings.tts = 0;
-     text_to_speech_status = 0;
-   }
-  
-
-  if (my_setenv("LANG", buf) == -1)
+  /* Setting TTS language */
+  if (!T4K_Tts_set_voice(tts_language))
   {
-    fprintf(stderr, "Warning - could not set LANG to %s\n\n", buf);
-  }
-
-  if (my_setenv("LANGUAGE", buf) == -1)
-  {
-    fprintf(stderr, "Warning - could not set LANGUAGE to %s\n\n", buf);
+    if (settings.tts)
+    {
+      T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, APPEND,
+        gettext("Tts is not available for this language. Tts disabled!"));
+    }
+    settings.tts = 0;
+    text_to_speech_status = 0;
   }
 
   return;

@@ -66,8 +66,10 @@ void ChooseTheme(void)
   struct dirent* themesFile = NULL;
 
   /* save previous settings in case we back out: */
+  char old_theme_name[FNLEN];
   old_use_english = settings.use_english;
   strncpy(old_theme_path, settings.theme_data_path, FNLEN - 1);
+  strncpy(old_theme_name, settings.theme_name, FNLEN - 1);
 
   sprintf(fn, "%s/themes/", settings.default_data_path);
   themesDir = opendir(fn);
@@ -212,10 +214,12 @@ void ChooseTheme(void)
         case SDL_EVENT_KEY_DOWN:
           if (event.key.key == SDLK_ESCAPE)
           {
-            settings.use_english = old_use_english;
-            strncpy(settings.theme_data_path, old_theme_path, FNLEN - 1);
-            stop = 1; 
-            break; 
+            if (old_use_english)
+              SetupPaths(NULL);
+            else
+              SetupPaths(old_theme_name);
+            stop = 1;
+            break;
           }
 
           if (event.key.key == SDLK_RETURN)

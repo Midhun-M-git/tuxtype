@@ -491,6 +491,12 @@ void HandleTitleScreenResSwitch(int new_w, int new_h)
     RenderTitleScreen();
 }
 
+void InvalidateTitleScreen(void)
+{
+    curr_res_x = -1;
+    curr_res_y = -1;
+}
+
 /* handle all titlescreen blitting
    this function should be called after every animation frame */
 /* NOTE we now allow the animation to optionally be started

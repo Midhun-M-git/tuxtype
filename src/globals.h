@@ -74,7 +74,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #ifdef WIN32
-#define TUXLOCALE "./locale"
+#define TUXLOCALE "data/locale"
 #else
 #define TUXLOCALE LOCALEDIR
 #endif
